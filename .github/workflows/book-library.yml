@@ -1,0 +1,43 @@
+name: Book library study cabin
+
+on:
+  schedule:
+    # 21:40 UTC = 22:40 Amsterdam in winter / 23:40 in summer.
+    # Starting early absorbs GitHub's cron delays; the script then waits until 00:00:05 Amsterdam.
+    - cron: "40 21 * * *"
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Book a specific date now (YYYY-MM-DD). Leave empty to book tomorrow."
+        required: false
+      dry_run:
+        description: "Dry run (log in and check only, don't book)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: library-booking
+  cancel-in-progress: false
+
+jobs:
+  book:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Book
+        env:
+          LIBRARY_EMAIL: ${{ secrets.LIBRARY_EMAIL }}
+          START: "10:00"
+          END: "13:00"
+          LOCATION: "47"    # Bibliotheek LRC
+          TYPE: "39"        # Werkplek HushMeet (studiecabine)
+          RESOURCE: "568"   # studiecabine 1
+          DAYS: "1,2,3,4,5,6,7"   # Mon=1 … Sun=7 — e.g. "1,2,3,4,5" for weekdays only
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && '1' || '0' }}
+          WAIT_FOR_MIDNIGHT: ${{ github.event_name == 'schedule' && '1' || '0' }}
+        run: python book.py
