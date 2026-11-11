@@ -36,7 +36,7 @@ jobs:
           LOCATION: "47"    # Bibliotheek LRC
           TYPE: "39"        # Werkplek HushMeet (studiecabine)
           RESOURCE: "568"   # studiecabine 1
-          DAYS: "1,2,3,4,5,6,7"   # Mon=1 … Sun=7 — e.g. "1,2,3,4,5" for weekdays only
+          DAYS: "1,2,3,4,5"   # Mon=1 … Sun=7 — e.g. "1,2,3,4,5" for weekdays only
           TARGET_DATE: ${{ github.event.inputs.target_date }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && '1' || '0' }}
           WAIT_FOR_MIDNIGHT: ${{ github.event_name == 'schedule' && '1' || '0' }}
