@@ -67,9 +67,11 @@ def req(method, url, data=None):
 
 def login():
     q = urllib.parse.urlencode({"emailadres": EMAIL})
-    status, _, final = req("GET", f"{BASE}/werkplekkenVerificatie.vm?{q}")
-    if "reservering.vm" not in final:
-        raise SystemExit(f"Login failed (status {status}, ended at {final}). Is LIBRARY_EMAIL right?")
+    status, body, final = req("GET", f"{BASE}/werkplekkenVerificatie.vm?{q}")
+    # Success is a JS redirect: window.location.replace('/reserveringen/page/reservering.vm')
+    if "reservering.vm" not in final and "location.replace('/reserveringen/page/reservering.vm')" not in body:
+        raise SystemExit(f"Login failed (status {status}). Is LIBRARY_EMAIL right?")
+    req("GET", f"{BASE}/page/reservering.vm")
     log("Logged in.")
 
 
